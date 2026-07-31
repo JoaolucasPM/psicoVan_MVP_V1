@@ -1,22 +1,29 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { CognifitSdk } from "@cognifit/launcher-js-sdk";
 import { CognifitSdkConfig } from "@cognifit/launcher-js-sdk/lib/lib/cognifit.sdk.config";
-import { API_URL } from "../config";
 
+import { API_URL } from "../config";
 
 function CognifitGame() {
   const { patientId } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const gameId = searchParams.get("game") || "CUT_THE_CAKE";
 
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
+    let subscription;
+
     async function startGame() {
       try {
+        setErro("");
+        setCarregando(true);
+
         const response = await fetch(
           `${API_URL}/cognifit/games/start/`,
-          
           {
             method: "POST",
             headers: {
@@ -24,18 +31,46 @@ function CognifitGame() {
             },
             body: JSON.stringify({
               patient_id: Number(patientId),
-              game_id: "CUT_THE_CAKE",
+              game_id: gameId,
             }),
           }
         );
 
-        const data = await response.json();
+        const texto = await response.text();
+
+        console.log("STATUS COGNIFIT:", response.status);
+        console.log("RESPOSTA COGNIFIT:", texto);
+
+        let data = {};
+
+        if (texto) {
+          try {
+            data = JSON.parse(texto);
+          } catch {
+            if (!response.ok) {
+              throw new Error(
+                `Erro ${response.status} no backend. Verifique os logs do Render.`
+              );
+            }
+
+            throw new Error(
+              "O backend retornou uma resposta que não é JSON."
+            );
+          }
+        }
 
         if (!response.ok) {
           throw new Error(
-            data.detail ||
-              data.error ||
+            data.error ||
+              data.detail ||
+              data.errorMessage ||
               JSON.stringify(data)
+          );
+        }
+
+        if (!data.client_id || !data.access_token || !data.game_id) {
+          throw new Error(
+            "O backend não retornou client_id, access_token ou game_id."
           );
         }
 
@@ -55,7 +90,7 @@ function CognifitGame() {
 
         await sdk.init(config);
 
-        sdk.start("GAME", data.game_id).subscribe({
+        subscription = sdk.start("GAME", data.game_id).subscribe({
           next: (result) => {
             console.log("RESPOSTA DO JOGO:", result);
           },
@@ -71,14 +106,20 @@ function CognifitGame() {
         });
       } catch (error) {
         console.error("ERRO AO INICIAR:", error);
-        setErro(error.message);
+        setErro(error.message || "Erro ao iniciar avaliação.");
       } finally {
         setCarregando(false);
       }
     }
 
     startGame();
-  }, [patientId]);
+
+    return () => {
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [patientId, gameId]);
 
   return (
     <main className="min-h-screen bg-slate-950">
