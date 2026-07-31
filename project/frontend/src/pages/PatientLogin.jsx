@@ -18,7 +18,7 @@ function PatientLogin() {
 
     try {
       const response = await fetch(
-        `${API_URL}patients/login/`,
+        `${API_URL}/patients/login/`,
         {
           method: "POST",
           headers: {
