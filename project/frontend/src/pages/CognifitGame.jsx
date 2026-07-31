@@ -147,6 +147,7 @@ function CognifitGame() {
       />
     </main>
   );
+
 }
 
 export default CognifitGame;
