@@ -1,0 +1,92 @@
+# ==========================
+# Python
+# ==========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Poetry
+poetry.toml
+
+# SQLite
+db.sqlite3
+
+# Logs
+*.log
+
+# Pytest
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# ==========================
+# Django
+# ==========================
+
+media/
+staticfiles/
+
+# ==========================
+# Environment variables
+# ==========================
+
+.env
+.env.*
+!.env.example
+
+# ==========================
+# Node / React / Vite
+# ==========================
+
+node_modules/
+dist/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+.vite/
+
+# ==========================
+# VS Code
+# ==========================
+
+.vscode/
+.history/
+
+# ==========================
+# JetBrains
+# ==========================
+
+.idea/
+
+# ==========================
+# OS
+# ==========================
+
+.DS_Store
+Thumbs.db
+
+# ==========================
+# Misc
+# ==========================
+
+*.swp
+*.swo
+*.bak
